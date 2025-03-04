@@ -1,0 +1,10 @@
+ty nechutny int64 jsou cisla v array
+
+pozor na odsazeni v pythonu v mainu
+
+mam tady tyto dva kody, mym cilem je v tuto chvili se zamerit pouze na jeden input a tak potrebuji nekam do tech kodu co nejjednoduseji vypsat
+nejaky explicitni state tak aby kod stale pracoval s tim jednim statem Initial state: [[2], [1], [4], [3, 5]]
+Goal state: [[5, 3, 1], [2], [4]]
+jde o to ze to ale musi jit jednoduse zakomentarovat tak aby kod mohl kdykoliv zacit normalne fungovat tedy nesmis zmenit to co tam uz je jen tam nekam doplnit kud kodu ktery pujde jednoduse vypnout
+
+potrebuji to verzovat jinak je to neudrzitelne
