@@ -142,4 +142,5 @@ if __name__ == '__main__':
 
 
 ###ctvrty commit
+####veci ve ctvrtem commitu
 
