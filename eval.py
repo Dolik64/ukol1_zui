@@ -32,5 +32,4 @@ print(f"Yours     | path length: {path_len}, expanded: {expanded}, time: {t_elap
 
 ###
 # 5/0: [[2], [1], [4], [3, 5]] -> [[5, 3, 1], [2], [4]]
-# Reference | path length: 3, expanded: 5, time: 0.00s
-# Yours     | path length: 3, expanded: 5, time: 0.00s
+#treti commit
