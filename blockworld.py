@@ -141,6 +141,6 @@ if __name__ == '__main__':
 		blocks.apply((n_from, n_to))
 
 
-###ctvrty commit
-####veci ve ctvrtem commitu
+### commit
+####paty commit
 
