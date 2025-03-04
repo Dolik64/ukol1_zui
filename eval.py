@@ -29,3 +29,5 @@ t_elapsed = t_end - t_start
 print(f"{args.n}/{args.pid}: {start} -> {goal}")
 print(f"Reference | path length: {problem['path_length']}, expanded: {problem['expanded_nodes']}, time: {problem['time']:.2f}s")
 print(f"Yours     | path length: {path_len}, expanded: {expanded}, time: {t_elapsed:.2f}s")
+
+#tohle bude v nove branchi 
