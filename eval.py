@@ -33,3 +33,8 @@ print(f"Yours     | path length: {path_len}, expanded: {expanded}, time: {t_elap
 ###
 # 5/0: [[2], [1], [4], [3, 5]] -> [[5, 3, 1], [2], [4]]
 #treti commit
+
+#tohle bude v nove branchi 
+###
+# 5/0: [[2], [1], [4], [3, 5]] -> [[5, 3, 1], [2], [4]]
+#treti commit
