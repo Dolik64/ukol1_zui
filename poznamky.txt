@@ -8,3 +8,7 @@ Goal state: [[5, 3, 1], [2], [4]]
 jde o to ze to ale musi jit jednoduse zakomentarovat tak aby kod mohl kdykoliv zacit normalne fungovat tedy nesmis zmenit to co tam uz je jen tam nekam doplnit kud kodu ktery pujde jednoduse vypnout
 
 potrebuji to verzovat jinak je to neudrzitelne
+
+chtel bych zkusit si o tom s chatem gpt povidat
+
+kdyz poustim eval tak musim zadat argumenty

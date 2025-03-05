@@ -129,8 +129,8 @@ class BlockWorld():
 		return blocks_
 
 if __name__ == '__main__':
-	# blocks = BlockWorld(3)
-	blocks = BlockWorld(5, state='[[2], [1], [4], [3, 5]]')
+	blocks = BlockWorld(3)
+	#blocks = BlockWorld(5, state='[[2], [1], [4], [3, 5]]')
 
 	while True:
 		print(f"state = {blocks}")
