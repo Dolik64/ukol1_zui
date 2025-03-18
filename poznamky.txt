@@ -12,3 +12,31 @@ potrebuji to verzovat jinak je to neudrzitelne
 chtel bych zkusit si o tom s chatem gpt povidat
 
 kdyz poustim eval tak musim zadat argumenty
+/bin/python3 /home/jirkadolezal/Documents/ZUI/task1_block_v3/eval.py 4 0
+
+plan je ten ze se zeptam ilii jak se naucit programovat
+
+pak musim pochopit kod
+
+pak se zeptam na cviceni
+
+a* algoritmus bych nechal jak je, to bych se nesnazil pochopit na to seru, ale dulezita je ta heuristika
+
+
+
+
+
+
+je dulezite prochazet ten state od spoda a koukat ktere bloky jsou umistene spravne
+
+ta myslenka je ze heuristika se odviji od toho ze prochazim ty bloky jak jsou nad sebou a prochazim je
+ ze spoda, heuristiku pocitam podle toho zda je dany blok umisten spravne, zajima me to od spoda protoze
+  kdybych koukal na blok ktery je umisten spravne ale byl by pod nim blok ktery je umisten spatne, potom je 
+  ten spravny take vlastne umisten spatne jelikoz se musi premistit, dalsi dulezity fakt je ten ze nezalezi
+   na poradi jako jsou ty veze vedle sebe, to je i v zadani, dalsi vec je ze vrmci efektivity musime logicky 
+   orezavat at to neni pomaly na to je ta heuristika a tam jde prave o to ze jakmile zjistis ze je nejaky blok 
+   spatne polozeny tak to nejak useknes ale to uz nechapu takze po tobe chci abys mi to nejak vysvetlil a nesel 
+   chybu v mem kodu protoze je extremne pomaly
+
+
+pokud kopirujes kod z chata musis kopirovat cely ten blok
