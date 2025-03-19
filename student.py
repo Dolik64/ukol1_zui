@@ -1,5 +1,7 @@
 from blockworld import BlockWorld
 import heapq
+
+from collections import defaultdict
 import numpy as np
 # Před importem blockworld "patchneme" alias np.int, aby odkazoval na np.int64.
 np.int = np.int64
@@ -11,101 +13,121 @@ def canonical_state(state):
     return tuple(tuple(tower) for tower in state)
 
 class BlockWorldHeuristic(BlockWorld):
-    def __init__(self, num_blocks=5, state=None):
-        super().__init__(num_blocks, state)
+    def __init__(self, pocet_bloku=5, state=None):
+        super().__init__(pocet_bloku, state)
 
-    def heuristic(self, goal):
+    def heuristic(self, cil):
         """
-        Heuristika, která porovnává každou věž v aktuálním stavu se
-        všemi věžemi v cíli a hledá maximální počet shodných spodních bloků.
-        Následně spočte, kolik bloků zbývá „opravit“.
+        Heuristika, která ignoruje pořadí věží a porovnává
+        vždy věž ze startu s každou věží v cíli „odspodu nahoru“.
+        Jakmile narazí na rozdíl, skončí a výslednou shodu už nezvyšuje.
+        Následně vezme maximum shody pro každou věž.
         """
-        # Pomocná funkce pro zjištění, kolik bloků odspodu se shoduje.
-        def matched_bottom_length(towerA, towerB):
-            """
-            Porovná věž towerA a towerB odspodu. Jakmile narazí na rozdíl,
-            skončí a vrátí počet shodných bloků.
-            """
-            i = 0
-            while i < len(towerA) and i < len(towerB):
-                # Porovnáváme i-tý blok odspodu (index od konce)
-                if towerA[-1 - i] != towerB[-1 - i]:
+
+        # Pomocná funkce na zjištění, kolik bloků se shoduje odspodu.
+        def spodni_shoda(vez_start, vez_cil):
+            pocet_shod = 0
+            while pocet_shod < len(vez_start) and pocet_shod < len(vez_cil):
+                # Kontrolujeme i-tý blok odspodu (index od konce)
+                if vez_start[-1 - pocet_shod] != vez_cil[-1 - pocet_shod]:
                     break
-                i += 1
-            return i
+                pocet_shod += 1
+            return pocet_shod
 
-        # 1) Spočítám celkový počet bloků
-        total_blocks = sum(len(t) for t in self.state)
+        # 1) Spočítáme celkový počet bloků v aktuálním stavu
+        celkovy_pocet = 0
+        index_veze = 0
+        while index_veze < len(self.state):
+            celkovy_pocet += len(self.state[index_veze])
+            index_veze += 1
 
-        # 2) Pro každou věž v current_state hledám "nejlepší" shodu
-        #    s libovolnou věží v goal_state
-        sum_of_best_matches = 0
-        for towerA in self.state:
-            best_match_for_this_tower = 0
-            for towerB in goal.state:
-                # kolik spodních bloků se přesně shoduje?
-                match_len = matched_bottom_length(towerA, towerB)
-                if match_len > best_match_for_this_tower:
-                    best_match_for_this_tower = match_len
+        # 2) Pro každou věž v current_state zjistíme nejlepší možnou
+        #    shodu s libovolnou věží v goal.state
+        soucet_max_shod = 0
+        index_start = 0
+        while index_start < len(self.state):
+            aktualni_vez = self.state[index_start]
+            nejlepsi_shoda_vez = 0
 
-            sum_of_best_matches += best_match_for_this_tower
+            index_cil = 0
+            while index_cil < len(cil.state):
+                cilova_vez = cil.state[index_cil]
+                aktualni_shoda = spodni_shoda(aktualni_vez, cilova_vez)
 
-        # 3) Heuristika = kolik bloků je ještě "mimo", tj. total - už dobře položené
-        misplaced = total_blocks - sum_of_best_matches
-        return misplaced
+                if aktualni_shoda > nejlepsi_shoda_vez:
+                    nejlepsi_shoda_vez = aktualni_shoda
+
+                index_cil += 1
+
+            soucet_max_shod += nejlepsi_shoda_vez
+            index_start += 1
+
+        # 3) Heuristika = kolik bloků je „špatně“ = (celkový počet) - (suma shod)
+        spatne_bloky = celkovy_pocet - soucet_max_shod
+        return spatne_bloky
 
 
 class AStar():
-    def search(self, start, goal):
+    def search(self, start, cil):
         """
-        Prohledává stavový prostor pomocí A* algoritmu.
-        start, goal: instance BlockWorldHeuristic (nebo BlockWorld), kde goal má definovaný svůj stav.
+        Prohledávání stavového prostoru metodou A*.
+        Místo kanonického stavu (tuple) používáme prosté str(stav),
+        protože to stačí a je čitelné.
         """
-        import heapq
-        from collections import defaultdict
+        # fronta s prioritami pro A*
+        otevrena_pole = []
+        
+        # g_hodnota eviduje „cenu cesty“ od startu ke stavu
+        g_hodnota = {}
 
-        def canonical_state(conf):
-            # Pomocná funkce na vytvoření hashovatelné reprezentace stavu
-            # (pokud už nějakou máš, používej ji)
-            return tuple(tuple(t) for t in conf)
+        # Uzavřená množina (set) pro stavy, které jsme již prozkoumali
+        uzavreno = set()
 
-        open_set = []
-        start_state_key = canonical_state(start.get_state())
+        # Přidáme startovní stav do fronty
+        klic_startu = str(start.get_state())  # řetězec reprezentující stav
+        g_hodnota[klic_startu] = 0
+        zacatecni_odhad = start.heuristic(cil)
+        heapq.heappush(otevrena_pole, (zacatecni_odhad, start, []))
 
-        # g_score: vzdálenost od startu
-        g_score = defaultdict(lambda: float('inf'))
-        g_score[start_state_key] = 0
+        # Smyčka, dokud máme něco ve frontě
+        while len(otevrena_pole) > 0:
+            # Vezmeme stav s nejnižší hodnotou f (f = g + h)
+            f_aktual, aktualni_stav, cesta_akci = heapq.heappop(otevrena_pole)
+            klic_aktual = str(aktualni_stav.get_state())
 
-        # f_score = g_score + heuristika
-        start_f = start.heuristic(goal)
-        heapq.heappush(open_set, (start_f, start, []))  # (priorita, stav, cesta_akcí)
-
-        closed_set = set()
-
-        while open_set:
-            f_current, current, path_so_far = heapq.heappop(open_set)
-            current_key = canonical_state(current.get_state())
-
-            if current_key in closed_set:
+            # Pokud už jsme tento stav zpracovali dřív, přeskočíme
+            if klic_aktual in uzavreno:
                 continue
-            closed_set.add(current_key)
 
-            # Ověříme, zda jsme v cíli
-            if current.get_state() == goal.get_state():
-                return path_so_far
+            # Označíme stav jako uzavřený
+            uzavreno.add(klic_aktual)
 
-            # Projdeme všechny sousedy
-            for action, neighbor in current.get_neighbors():
-                neighbor_key = canonical_state(neighbor.get_state())
-                tentative_g = g_score[current_key] + 1
+            # Ověříme, jestli jsme v cíli
+            if aktualni_stav.get_state() == cil.get_state():
+                return cesta_akci  # vracíme posloupnost akcí
 
-                if tentative_g < g_score[neighbor_key]:
-                    g_score[neighbor_key] = tentative_g
-                    f_neighbor = tentative_g + neighbor.heuristic(goal)
-                    heapq.heappush(open_set, (f_neighbor, neighbor, path_so_far + [action]))
+            # Projdeme všechny sousedy (akce, sousední stavy)
+            sousede = aktualni_stav.get_neighbors()
+            index_souseda = 0
+            while index_souseda < len(sousede):
+                akce, dalsi_stav = sousede[index_souseda]
+                index_souseda += 1
 
-        # Pokud se open_set vyprázdní a my nenašli cíl, vrátíme None.
+                klic_dalsi = str(dalsi_stav.get_state())
+                nova_g = g_hodnota[klic_aktual] + 1
+
+                # Pokud jsme do tohoto stavu ještě nešli
+                # nebo jsme našli levnější cestu, aktualizujeme
+                if (klic_dalsi not in g_hodnota) or (nova_g < g_hodnota[klic_dalsi]):
+                    g_hodnota[klic_dalsi] = nova_g
+                    h_odhad = dalsi_stav.heuristic(cil)
+                    f_nova = nova_g + h_odhad
+                    nova_cesta = cesta_akci + [akce]
+                    heapq.heappush(otevrena_pole, (f_nova, dalsi_stav, nova_cesta))
+
+        # Pokud jsme vyčerpali všechny možnosti a cíl jsme nenašli
         return None
+
 
     
 if __name__ == '__main__':
@@ -118,10 +140,10 @@ if __name__ == '__main__':
 	# start = BlockWorldHeuristic(N, state='[[2], [1], [4], [3, 5]]')
 	# goal  = BlockWorldHeuristic(N, state='[[5, 3, 1], [2], [4]]')
 
-	print("Searching for a path:")
-	# Použití v hlavním kódu
-	print(convert_npint64_string(str(start)))
-	print(convert_npint64_string(str(goal)))
+	# print("Searching for a path:")
+	# # Použití v hlavním kódu
+	# print(convert_npint64_string(str(start)))
+	# print(convert_npint64_string(str(goal)))
 
 	#print(f"{start} -> {goal}")
 	print()

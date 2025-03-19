@@ -40,3 +40,6 @@ ta myslenka je ze heuristika se odviji od toho ze prochazim ty bloky jak jsou na
 
 
 pokud kopirujes kod z chata musis kopirovat cely ten blok
+
+git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
